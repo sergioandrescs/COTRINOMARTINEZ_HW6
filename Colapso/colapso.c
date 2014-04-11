@@ -8,6 +8,8 @@
 
 /*El siguiente es el codigo preliminar del cuarto punto de la tarea 6 del curso Metodos Computacionales.
 Este codigo fue escrito sobre el codigo main_3body.c creado por Jaime Forero.
+*entradas: Ninguna.
+Salidas: posiciones, velocidades, aceleraciones y neergia total del sistema
 
 Antes que nada, se inicializan las funciones a usar.*/
 
