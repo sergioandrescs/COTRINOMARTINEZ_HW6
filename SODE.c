@@ -5,6 +5,7 @@
 #define UA 1.496E11
 #define YEAR_SEC 31536000
 #define G 6.67E-11
+#define G_GRAV 39.486 //units of ua+3 msun-1 yr-1
 
 
 /*Solucion de ecuaciones diferenciales con Runge Kutta cuarto orden*/
@@ -42,7 +43,7 @@ int main (){
     return y2 ;
   }
   double fun2 (double x, double y1, double y2 ){
-    return -4*y1;
+    return  -G_GRAV *mass[j]/ pow(r_ij,1.5) * (x[i] - x[j]);
   }
 
 
