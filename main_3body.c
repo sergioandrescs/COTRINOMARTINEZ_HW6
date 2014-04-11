@@ -1,10 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#define FLOAT double
+#define FLOAT float
 #define PI 3.141592653589793
 #define G_GRAV 39.486 //units of ua+3 msun-1 yr-1
-#define DELTA 0.01
+#define DELTA 0.001
 
 FLOAT *get_memory(int n_points);
 void initialize_pos(FLOAT *x, FLOAT *y, FLOAT *z, int n_points, FLOAT radius);
@@ -13,7 +13,7 @@ void initialize_mass(FLOAT *mass, int n_points, FLOAT unit_mass);
 void print_status(FLOAT *x, FLOAT *y, FLOAT *z, FLOAT *vx, FLOAT *vy, FLOAT *vz, FLOAT *ax, FLOAT *ay, FLOAT *az, int n_points, FLOAT energy);
 void get_acceleration(FLOAT *ax, FLOAT *ay, FLOAT *az, FLOAT *x, FLOAT *y, FLOAT *z, FLOAT *mass, int n_points);
 void runge_kutta4(FLOAT *x, FLOAT *y, FLOAT *z, FLOAT *vx, FLOAT *vy, FLOAT *vz, FLOAT *ax, FLOAT *ay, FLOAT *az, int n_points, FLOAT *mass);
-FLOAT get_energy (FLOAT *x, FLOAT *y, FLOAT *z, FLOAT *vx, FLOAT *vy, FLOAT *vz, int n_points, FLOAT *mass, FLOAT energy);
+FLOAT get_energy (FLOAT *x, FLOAT *y, FLOAT *z, FLOAT *vx, FLOAT *vy, FLOAT *vz, int n_points, FLOAT *mass);
 
 int main(int argc, char **argv){
   /*energy*/
@@ -41,7 +41,7 @@ int main(int argc, char **argv){
 
   /*timestep variables*/
   FLOAT delta_t= DELTA;
-  int n_steps = (int)(1000.0/delta_t);
+  int n_steps = (int)(100.0/delta_t);
   int n_points = 3;
   FLOAT radius = 100.0;
   FLOAT unit_mass = 1.0; 
@@ -64,14 +64,14 @@ int main(int argc, char **argv){
   initialize_vel(v_x,v_y,v_z, n_points, vel_initial, radius);
   initialize_mass(mass, n_points, unit_mass);
   get_acceleration(a_x,a_y,a_z,x,y,z,mass,n_points);
-  energy=get_energy(x,y,z,v_x,v_y,v_z,n_points,mass,energy );
+  energy = get_energy(x,y,z,v_x,v_y,v_z,n_points,mass);
   for (i=0;i<n_steps;i++){
     if(i==0){
       print_status(x,y,z,v_x,v_y,v_z, a_x, a_y, a_z, n_points,energy);
     }
     else{
       runge_kutta4(x,y,z,v_x,v_y,v_z,a_x,a_y,a_z,n_points,mass);
-      energy=get_energy(x,y,z,v_x,v_y,v_z,n_points,mass,energy);
+      energy = get_energy(x,y,z,v_x,v_y,v_z,n_points,mass);
       print_status(x,y,z,v_x,v_y,v_z, a_x, a_y, a_z, n_points,energy);
     }
   }
@@ -249,9 +249,10 @@ void runge_kutta4(FLOAT *x, FLOAT *y, FLOAT *z, FLOAT *vx, FLOAT *vy, FLOAT *vz,
       z[i]+=delta_t*vz[(i)];   
     }  
 }
-FLOAT get_energy (FLOAT *x, FLOAT *y, FLOAT *z, FLOAT *vx, FLOAT *vy, FLOAT *vz, int n_points, FLOAT *mass, FLOAT energy){
+FLOAT get_energy (FLOAT *x, FLOAT *y, FLOAT *z, FLOAT *vx, FLOAT *vy, FLOAT *vz, int n_points, FLOAT *mass){
   int i,j;
   FLOAT r_ij;
+  FLOAT energy = 0.0;
   for(i=0;i<n_points;i++){
     energy +=(0.5)*mass[i]*(pow(vx[i],2.0)+pow(vy[i],2.0)+pow(vz[i],2.0));
   }
