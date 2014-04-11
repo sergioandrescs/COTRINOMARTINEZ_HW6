@@ -170,6 +170,8 @@ FLOAT * get_memory(int n_points){
   return x;
 }
 
+/*El comando print_ status imprime todas las caracteristicas de las masas. Se busca que imprima tambien el numero de puntos, asi como el numero de pasos para que el comando en python que crea la grafica pueda utilizarlos y presentar toda esta informacion*/
+
 void print_status(FLOAT *x, FLOAT *y, FLOAT *z, FLOAT *vx, FLOAT *vy, FLOAT *vz, FLOAT *ax, FLOAT *ay, FLOAT *az, int n_points, FLOAT energy){
   int i;
   for(i=0;i<n_points;i++){
@@ -282,6 +284,8 @@ void runge_kutta4(FLOAT *x, FLOAT *y, FLOAT *z, FLOAT *vx, FLOAT *vy, FLOAT *vz,
       z[i]+=delta_t*vz[(i)];   
     }  
 }
+
+/*Se calcula la energio total del sistema. De igual forma, es necesario separar las energias potenciales y cineticas*/
 FLOAT get_energy (FLOAT *x, FLOAT *y, FLOAT *z, FLOAT *vx, FLOAT *vy, FLOAT *vz, int n_points, FLOAT *mass){
   int i,j;
   FLOAT r_ij;
@@ -303,3 +307,4 @@ FLOAT get_energy (FLOAT *x, FLOAT *y, FLOAT *z, FLOAT *vx, FLOAT *vy, FLOAT *vz,
   return energy;
 }
 
+/*El codigo necesita modificaciones de impresion y ser puesto a prueba en diferentes situaciones. De igual forma, en necesario crear un codigo en python que cree las graficas necesarias y un makefile que las ejecute.*/
