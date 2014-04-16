@@ -123,9 +123,12 @@ FLOAT * get_memory(int n_points){
 
 void print_initial(FLOAT *x, FLOAT *y, FLOAT *z, FLOAT *vx, FLOAT *vy, FLOAT *vz, int n_points, FLOAT *id){
   int i;
+  FILE *in;
+  in = fopen("inicialdata.dat","w");
   for(i=0;i<n_points;i++){
-    printf("%f %f %f %f %f %f %f  \n", 
+    fprintf(in,"%f\t %f\t %f\t %f\t %f\t %f\t %f  \n", 
 	   id[i], x[i], y[i], z[i], vx[i], vy[i], vz[i]);
   }
+  fclose(in);
 }
 
