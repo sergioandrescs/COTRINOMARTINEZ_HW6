@@ -4,7 +4,14 @@
 #define FLOAT float
 #define PI 3.141592653589793
 #define G_GRAV 39.486 //units of ua+3 msun-1 yr-1
-#define DELTA 0.001
+#define DELTA 0.01
+
+/*El siguiente codigo modela el movimiento de 3 cuerpos con diferentes masas debido a sus campos gravitatorios. 
+Como condiciones inicuales, se considera que la energia total del sistema (K+U) es igual a cero, que las pociciones iniciales son puntos equiespaciados sobre un circulo de radio dado,  y que la velocidad inicial de los cuerpos 
+es perpendicular al plano en el que se encuentran dichos cuerpos.
+El codigo imprime de vuelta las posiciones de los cuerpos en los 3 ejes, la energia total del sistema, la velocidad de los cuerpos y su aceleracion en los 3 ejes.*/
+
+/*Inicializacion de funciones*/
 
 FLOAT *get_memory(int n_points);
 void initialize_pos(FLOAT *x, FLOAT *y, FLOAT *z, int n_points, FLOAT radius);
@@ -21,6 +28,7 @@ int main(int argc, char **argv){
 
   /*i for iteration*/
   int i;
+
   /*positions of all particles*/
   FLOAT *x;
   FLOAT *y;
@@ -60,6 +68,9 @@ int main(int argc, char **argv){
   a_z = get_memory(n_points);
   mass = get_memory(n_points);
 
+  /*Se inicializan la posicion, velocidad, masas, aceleracion y energia
+    Ademas, se crea un loop que recalcule la posicion de las masas usando el metodo Runge Kutta de orden 4*/
+
   initialize_pos(x,y,z, n_points, radius);
   initialize_vel(v_x,v_y,v_z, n_points, vel_initial, radius);
   initialize_mass(mass, n_points, unit_mass);
@@ -76,6 +87,8 @@ int main(int argc, char **argv){
     }
   }
 }
+
+/*La aceleracion de cada masa se calcula en cada eje, usando la ley de la gravitacion universal y la segunda ley de Newton*/
 
 void get_acceleration(FLOAT *ax, FLOAT *ay, FLOAT *az, FLOAT *x, FLOAT *y, FLOAT *z, FLOAT *mass, int n_points){
   int i,j;
@@ -99,30 +112,34 @@ void get_acceleration(FLOAT *ax, FLOAT *ay, FLOAT *az, FLOAT *x, FLOAT *y, FLOAT
   }  
 }
 
+/*Las pociciones iniciales son puntos equiespaciados sobre un circulo de un radio dado*/
+
 void initialize_pos(FLOAT *x, FLOAT *y, FLOAT *z, int n_points, FLOAT radius){
   int i; 
   FLOAT delta_theta;
   delta_theta = 2.0*PI/n_points;
   
-  for(i=0;i<3;i++){
+  for(i=0;i<n_points;i++){
     x[i] = cos(delta_theta * i) * radius;
     y[i] = sin(delta_theta * i) * radius;
     z[i] = 0.0;
   }
 }
 
+/*Las velocidades iniciales son perpendiculares al plano sobre el cual estan ubicadas las masas.*/
+
 void initialize_vel(FLOAT *vx, FLOAT *vy, FLOAT *vz, int n_points, FLOAT vel, FLOAT radius){
   int i; 
-  FLOAT delta_theta;
-  delta_theta = 2.0*PI/n_points;
   
-  for(i=0;i<3;i++){
-    vx[i] = -sin(delta_theta * i) * vel;
-    vy[i] = cos(delta_theta * i) * vel;
-    vz[i] = 0.0;
+  for(i=0;i<n_points;i++){
+    vx[i] = 0.0;
+    vy[i] = 0.0;
+    vz[i] = vel;
   }  
 
 }
+
+/*Las masas de los cuerpos estan medidas en masas solares. Cada masa es una unidad mayor que la anterior.*/
 
 void initialize_mass(FLOAT *mass, int n_points, FLOAT unit_mass){
   int i;
@@ -130,6 +147,8 @@ void initialize_mass(FLOAT *mass, int n_points, FLOAT unit_mass){
     mass[i] = (i+1) * unit_mass;
   }
 }
+
+/*Se realiza la reserva de memoria para los diferentes datos.*/
 
 FLOAT * get_memory(int n_points){
   FLOAT * x; 
@@ -140,6 +159,8 @@ FLOAT * get_memory(int n_points){
   return x;
 }
 
+/*El codigo imprime de vuelta las posiciones de los cuerpos en los 3 ejes, la energia total del sistema, la velocidad de los cuerpos y su aceleracion en los 3 ejes*/
+
 void print_status(FLOAT *x, FLOAT *y, FLOAT *z, FLOAT *vx, FLOAT *vy, FLOAT *vz, FLOAT *ax, FLOAT *ay, FLOAT *az, int n_points, FLOAT energy){
   int i;
   for(i=0;i<n_points;i++){
@@ -147,6 +168,9 @@ void print_status(FLOAT *x, FLOAT *y, FLOAT *z, FLOAT *vx, FLOAT *vy, FLOAT *vz,
 	   x[i], y[i], z[i], energy, vx[i], vy[i], vz[i], ax[i], ay[i], az[i]);
   }
 }
+
+/*Las posiciones de las masas se actualizan usando un metodo Runge Kutta de cuarto orden.*/
+
 void runge_kutta4(FLOAT *x, FLOAT *y, FLOAT *z, FLOAT *vx, FLOAT *vy, FLOAT *vz, FLOAT *ax, FLOAT *ay, FLOAT *az, int n_points, FLOAT *mass){
   int i; 
  
@@ -249,6 +273,8 @@ void runge_kutta4(FLOAT *x, FLOAT *y, FLOAT *z, FLOAT *vx, FLOAT *vy, FLOAT *vz,
       z[i]+=delta_t*vz[(i)];   
     }  
 }
+/*Se calcula la energia del sistema.*/
+
 FLOAT get_energy (FLOAT *x, FLOAT *y, FLOAT *z, FLOAT *vx, FLOAT *vy, FLOAT *vz, int n_points, FLOAT *mass){
   int i,j;
   FLOAT r_ij;
