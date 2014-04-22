@@ -75,19 +75,17 @@ int main(int argc, char **argv){
   get_acceleration(a_x,a_y,a_z,x,y,z,mass,n_points,id);
   energy = get_energy(x,y,z,v_x,v_y,v_z,n_points,mass);
   for (i=0;i<n_steps;i++){
-    if(i==0){
+    if(i%(n_steps/momentos)==0){
       print_status(x,y,z,v_x,v_y,v_z, a_x, a_y, a_z, n_points,energy);
     }
-    else{
       runge_kutta4(x,y,z,v_x,v_y,v_z,a_x,a_y,a_z,n_points,mass,id);
       energy = get_energy(x,y,z,v_x,v_y,v_z,n_points,mass);
-      print_status(x,y,z,v_x,v_y,v_z, a_x, a_y, a_z, n_points,energy);
-    }
   }
 }
 
+
 void get_acceleration(FLOAT *ax, FLOAT *ay, FLOAT *az, FLOAT *x, FLOAT *y, FLOAT *z, FLOAT *mass, int n_points, FLOAT *id){
-  int i,j;
+  int i,j,k;
   FLOAT r_ij;
   int count;
   for(j=0;j<n_points;j++){
@@ -101,12 +99,29 @@ void get_acceleration(FLOAT *ax, FLOAT *ay, FLOAT *az, FLOAT *x, FLOAT *y, FLOAT
 		pow((y[i] - y[j]),2.0) +
 		pow((z[i] - z[j]),2.0));
 	r_ij = sqrt(r_ij);
-	ax[i] += -G_GRAV *mass[0]/(0.0001 +  pow(r_ij,3)) * (x[i] - x[0]);
-	ay[i] += -G_GRAV *mass[0]/(0.0001 +  pow(r_ij,3)) * (y[i] - y[0]);
-	az[i] += -G_GRAV *mass[0]/(0.0001 +  pow(r_ij,3)) * (z[i] - z[0]);
+	ax[i] += -G_GRAV *mass[0]/(0.0001 +  pow(r_ij,3)) * (x[i] - x[j]);
+	ay[i] += -G_GRAV *mass[0]/(0.0001 +  pow(r_ij,3)) * (y[i] - y[j]);
+	az[i] += -G_GRAV *mass[0]/(0.0001 +  pow(r_ij,3)) * (z[i] - z[j]);
       }
+    } 
   } 
-  }   
+  for(j=0;j<n_points;j++){
+    if(id[j]<0){
+      for (i=0;i<n_points;i++){
+	if((id[i]<0) && (i!=j)){
+	  r_ij = (pow((x[i] - x[j]),2.0) +
+		pow((y[i] - y[j]),2.0) +
+		pow((z[i] - z[j]),2.0));
+	r_ij = sqrt(r_ij);
+	ax[i] += -G_GRAV *mass[0]/(0.0001 +  pow(r_ij,3)) * (x[i] - x[j]);
+	ay[i] += -G_GRAV *mass[0]/(0.0001 +  pow(r_ij,3)) * (y[i] - y[j]);
+	az[i] += -G_GRAV *mass[0]/(0.0001 +  pow(r_ij,3)) * (z[i] - z[j]);
+	}
+      }
+    }
+  }
+
+  
 }
 
 void get_initial (FLOAT *id, FLOAT *x, FLOAT *y, FLOAT*z, FLOAT *vx, FLOAT *vy, FLOAT *vz, int n_points, char *fileic){
