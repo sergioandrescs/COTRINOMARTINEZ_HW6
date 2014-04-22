@@ -3,13 +3,14 @@
 #include <math.h>
 #define FLOAT float
 #define PI 3.141592653589793
-#define G_GRAV 4.4933E-15 //units of pc+3 msun-1 yr-1
+/*#define G_GRAV 4.4933E-15 //units of pc+3 msun-1 yr-1*/
+#define G_GRAV 39.486
 #define DELTA 0.01
 
 /*El siguiente es el codigo preliminar del cuarto punto de la tarea 6 del curso Metodos Computacionales.
 Este codigo fue escrito sobre el codigo main_3body.c creado por Jaime Forero.
 *entradas: Ninguna.
-Salidas: posiciones, velocidades, aceleraciones y neergia total del sistema
+Salidas: posiciones, velocidades, aceleraciones y energia total del sistema
 
 Antes que nada, se inicializan las funciones a usar.*/
 
@@ -49,8 +50,8 @@ int main(int argc, char **argv){
 
   /*timestep variables*/
   FLOAT delta_t= DELTA;
-  int n_steps = (int)(DELTA/delta_t);
-  int n_points = 1000;
+  int n_steps = (int)(1E9/delta_t);
+  int n_points = 10000;
   FLOAT radius = 20.0;
   FLOAT unit_mass = 1.0; 
 
@@ -106,9 +107,9 @@ void get_acceleration(FLOAT *ax, FLOAT *ay, FLOAT *az, FLOAT *x, FLOAT *y, FLOAT
 		pow((y[i] - y[j]),2.0) +
 		pow((z[i] - z[j]),2.0));
 	r_ij = sqrt(r_ij);
-	ax[i] += -G_GRAV *mass[j]/ pow(r_ij,1.5) * (x[i] - x[j]);
-	ay[i] += -G_GRAV *mass[j]/ pow(r_ij,1.5) * (y[i] - y[j]);
-	az[i] += -G_GRAV *mass[j] / pow(r_ij,1.5) * (z[i] - z[j]);
+	ax[i] += -G_GRAV *mass[j]/(0.00001+ pow(r_ij,3)) * (x[i] - x[j]);
+	ay[i] += -G_GRAV *mass[j]/(0.00001+ pow(r_ij,3)) * (y[i] - y[j]);
+	az[i] += -G_GRAV *mass[j] /(0.00001+ pow(r_ij,3)) * (z[i] - z[j]);
       }
     }    
   }  
@@ -293,7 +294,7 @@ FLOAT get_energy (FLOAT *x, FLOAT *y, FLOAT *z, FLOAT *vx, FLOAT *vy, FLOAT *vz,
   FLOAT r_ij;
   FLOAT energy = 0.0;
   for(i=0;i<n_points;i++){
-    energy +=(0.5)*mass[i]*(pow(vx[i],2.0)+pow(vy[i],2.0)+pow(vz[i],2.0));
+    energy +=(1)*mass[i]*(pow(vx[i],2.0)+pow(vy[i],2.0)+pow(vz[i],2.0));
   }
   for(i=0;i<n_points-1;i++){    
     for(j=0;j<n_points;j++){
@@ -309,4 +310,3 @@ FLOAT get_energy (FLOAT *x, FLOAT *y, FLOAT *z, FLOAT *vx, FLOAT *vy, FLOAT *vz,
   return energy;
 }
 
-/*El codigo necesita modificaciones de impresion y ser puesto a prueba en diferentes situaciones. De igual forma, en necesario crear un codigo en python que cree las graficas necesarias y un makefile que las ejecute.*/
