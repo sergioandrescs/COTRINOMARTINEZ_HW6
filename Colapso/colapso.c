@@ -79,15 +79,12 @@ Se realiza la impresion de los datos. La rganizacion de estos se hara luego usan
   get_acceleration(a_x,a_y,a_z,x,y,z,mass,n_points);
   energy = get_energy(x,y,z,v_x,v_y,v_z,n_points,mass);
   for (i=0;i<n_steps;i++){
-    if(i==0){
+    if(i%(n_steps/20)){
       print_status(x,y,z,v_x,v_y,v_z, a_x, a_y, a_z, n_points,energy);
     }
-    else{
       runge_kutta4(x,y,z,v_x,v_y,v_z,a_x,a_y,a_z,n_points,mass);
       energy = get_energy(x,y,z,v_x,v_y,v_z,n_points,mass);
-      print_status(x,y,z,v_x,v_y,v_z, a_x, a_y, a_z, n_points,energy);
     }
-  }
 }
 
 /*La funcion get_acceleration encuentra la aceleracion de las particulas en cada componente del sistema de coordenadas.
