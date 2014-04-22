@@ -71,7 +71,8 @@ int main(int argc, char **argv){
 
   /*Se inicializan la posicion, velocidad, aceleracion, masas y energia.
 Se crea un loop que use la funcion runge_kutta4 para actualizar la posicion de las masas
-Se realiza la impresion de los datos. La rganizacion de estos se hara luego usando un makefile*/
+Se realiza la impresion de los datos. La rganizacion de estos se hara luego usando un makefile.
+Solo se imprimen 20 series de datos.*/
 
   initialize_pos(x,y,z, n_points, radius);
   initialize_vel(v_x,v_y,v_z, n_points);
@@ -79,7 +80,7 @@ Se realiza la impresion de los datos. La rganizacion de estos se hara luego usan
   get_acceleration(a_x,a_y,a_z,x,y,z,mass,n_points);
   energy = get_energy(x,y,z,v_x,v_y,v_z,n_points,mass);
   for (i=0;i<n_steps;i++){
-    if(i%(n_steps/20)){
+    if(i%(n_steps/20)==0){
       print_status(x,y,z,v_x,v_y,v_z, a_x, a_y, a_z, n_points,energy);
     }
       runge_kutta4(x,y,z,v_x,v_y,v_z,a_x,a_y,a_z,n_points,mass);
