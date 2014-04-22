@@ -6,19 +6,26 @@
 #define G_GRAV 39.486 //units of ua+3 msun-1 yr-1
 #define DELTA 0.01
 
+/*El siguiente codigo modela la colision de dos galaxias consistentes en una masa central y una cantidad de particulas que giran a su alrededor.
+
+El codigo recibe, en ese orden: nombre del archivo con datos iniciales, el tiempo de evolucion T (en miles de millones de años), y el numero de momentos diferentes equiespaciados M.  */
+
 FLOAT *get_memory(int n_points);
 void print_status(FLOAT *x, FLOAT *y, FLOAT *z, FLOAT *vx, FLOAT *vy, FLOAT *vz, FLOAT *ax, FLOAT *ay, FLOAT *az, int n_points, FLOAT energy);
-void get_acceleration(FLOAT *ax, FLOAT *ay, FLOAT *az, FLOAT *x, FLOAT *y, FLOAT *z, FLOAT *mass, int n_points);
-void runge_kutta4(FLOAT *x, FLOAT *y, FLOAT *z, FLOAT *vx, FLOAT *vy, FLOAT *vz, FLOAT *ax, FLOAT *ay, FLOAT *az, int n_points, FLOAT *mass);
+void get_acceleration(FLOAT *ax, FLOAT *ay, FLOAT *az, FLOAT *x, FLOAT *y, FLOAT *z, FLOAT *mass, int n_points, FLOAT *id);
+void runge_kutta4(FLOAT *x, FLOAT *y, FLOAT *z, FLOAT *vx, FLOAT *vy, FLOAT *vz, FLOAT *ax, FLOAT *ay, FLOAT *az, int n_points, FLOAT *mass, FLOAT *id);
 FLOAT get_energy (FLOAT *x, FLOAT *y, FLOAT *z, FLOAT *vx, FLOAT *vy, FLOAT *vz, int n_points, FLOAT *mass);
-void get_initial (FLOAT *id, FLOAT *x, FLOAT *y, FLOAT*z, FLOAT *vx, FLOAT *vy, FLOAT *vz, int n_points, string fileic);
+void get_initial (FLOAT *id, FLOAT *x, FLOAT *y, FLOAT*z, FLOAT *vx, FLOAT *vy, FLOAT *vz, int n_points, char *fileic);
 
 int main(int argc, char **argv){
   /*Name initial data file*/
-  string fileic = (argv[1]);
+  char *fileic = (argv[1]);
 
   /*energy*/
   FLOAT energy;
+
+  /*Momentos de momentos equiespaciados*/
+  int momentos = atoi(argv[3]);
 
   /*i for iteration*/
   int i;
@@ -46,7 +53,7 @@ int main(int argc, char **argv){
 
   /*timestep variables*/
   FLOAT delta_t= DELTA;
-  int n_steps = (int)(2000.0/delta_t);
+  int n_steps = (int)((1E9*atoi(argv[2]))/delta_t);
   int n_points;
   FLOAT radius = 100.0;
   FLOAT unit_mass = 5.0; 
@@ -65,40 +72,44 @@ int main(int argc, char **argv){
   a_z = get_memory(n_points);
   id = get_memory(n_points);
 
-  get_acceleration(a_x,a_y,a_z,x,y,z,mass,n_points);
+  get_acceleration(a_x,a_y,a_z,x,y,z,mass,n_points,id);
   energy = get_energy(x,y,z,v_x,v_y,v_z,n_points,mass);
   for (i=0;i<n_steps;i++){
     if(i==0){
       print_status(x,y,z,v_x,v_y,v_z, a_x, a_y, a_z, n_points,energy);
     }
     else{
-      runge_kutta4(x,y,z,v_x,v_y,v_z,a_x,a_y,a_z,n_points,mass);
+      runge_kutta4(x,y,z,v_x,v_y,v_z,a_x,a_y,a_z,n_points,mass,id);
       energy = get_energy(x,y,z,v_x,v_y,v_z,n_points,mass);
       print_status(x,y,z,v_x,v_y,v_z, a_x, a_y, a_z, n_points,energy);
     }
   }
 }
 
-void get_acceleration(FLOAT *ax, FLOAT *ay, FLOAT *az, FLOAT *x, FLOAT *y, FLOAT *z, FLOAT *mass, int n_points){
-  int i;
+void get_acceleration(FLOAT *ax, FLOAT *ay, FLOAT *az, FLOAT *x, FLOAT *y, FLOAT *z, FLOAT *mass, int n_points, FLOAT *id){
+  int i,j;
   FLOAT r_ij;
-  for(i=0;i<n_points;i++){
-    ax[i]=0.0;
-    ay[i]=0.0;
-    az[i]=0.0;
-   
-    r_ij = (pow((x[i] - x[0]),2.0) +
-	    pow((y[i] - y[0]),2.0) +
-	    pow((z[i] - z[0]),2.0));
-    r_ij = sqrt(r_ij);
-    ax[i] += -G_GRAV *mass[0]/(0.0001 +  pow(r_ij,3)) * (x[i] - x[0]);
-    ay[i] += -G_GRAV *mass[0]/(0.0001 +  pow(r_ij,3)) * (y[i] - y[0]);
-    az[i] += -G_GRAV *mass[0]/(0.0001 +  pow(r_ij,3)) * (z[i] - z[0]);
-      
-  }    
+  int count;
+  for(j=0;j<n_points;j++){
+    if(id[j]<0){
+      for(i=0;i<n_points;i++){
+	ax[i]=0.0;
+	ay[i]=0.0;
+	az[i]=0.0;
+	
+	r_ij = (pow((x[i] - x[j]),2.0) +
+		pow((y[i] - y[j]),2.0) +
+		pow((z[i] - z[j]),2.0));
+	r_ij = sqrt(r_ij);
+	ax[i] += -G_GRAV *mass[0]/(0.0001 +  pow(r_ij,3)) * (x[i] - x[0]);
+	ay[i] += -G_GRAV *mass[0]/(0.0001 +  pow(r_ij,3)) * (y[i] - y[0]);
+	az[i] += -G_GRAV *mass[0]/(0.0001 +  pow(r_ij,3)) * (z[i] - z[0]);
+      }
+  } 
+  }   
 }
 
-void get_initial (FLOAT *id, FLOAT *x, FLOAT *y, FLOAT*z, FLOAT *vx, FLOAT *vy, FLOAT *vz, int n_points, string fileic){
+void get_initial (FLOAT *id, FLOAT *x, FLOAT *y, FLOAT*z, FLOAT *vx, FLOAT *vy, FLOAT *vz, int n_points, char *fileic){
   FILE *in;
   int i ,c;
 
@@ -141,7 +152,7 @@ void print_status(FLOAT *x, FLOAT *y, FLOAT *z, FLOAT *vx, FLOAT *vy, FLOAT *vz,
 	   x[i], y[i], z[i], energy, vx[i], vy[i], vz[i], ax[i], ay[i], az[i]);
   }
 }
-void runge_kutta4(FLOAT *x, FLOAT *y, FLOAT *z, FLOAT *vx, FLOAT *vy, FLOAT *vz, FLOAT *ax, FLOAT *ay, FLOAT *az, int n_points, FLOAT *mass){
+void runge_kutta4(FLOAT *x, FLOAT *y, FLOAT *z, FLOAT *vx, FLOAT *vy, FLOAT *vz, FLOAT *ax, FLOAT *ay, FLOAT *az, int n_points, FLOAT *mass, FLOAT *id){
   int i; 
  
   /*slope for Runge Kutta Method*/
@@ -189,7 +200,7 @@ void runge_kutta4(FLOAT *x, FLOAT *y, FLOAT *z, FLOAT *vx, FLOAT *vy, FLOAT *vz,
       kvy[1+(4*i)]=vy[i]+(delta_t/2.0)*kay[(4*i)];
       kvz[1+(4*i)]=vz[i]+(delta_t/2.0)*kaz[(4*i)];
     }
-    get_acceleration( ax, ay, az, xts, yts, zts, mass, n_points);
+    get_acceleration( ax, ay, az, xts, yts, zts, mass, n_points, id);
     for(i=0;i<n_points;i++){
       kax[1+(4*i)]=ax[i];
       kay[1+(4*i)]=ay[i];
@@ -205,7 +216,7 @@ void runge_kutta4(FLOAT *x, FLOAT *y, FLOAT *z, FLOAT *vx, FLOAT *vy, FLOAT *vz,
       kvy[2+(4*i)]=vy[i]+(delta_t/2.0)*kay[1+(4*i)];
       kvz[2+(4*i)]=vz[i]+(delta_t/2.0)*kaz[1+(4*i)];
     }
-    get_acceleration( ax, ay, az, xts, yts, zts, mass, n_points);
+    get_acceleration( ax, ay, az, xts, yts, zts, mass, n_points, id);
     for(i=0;i<n_points;i++){
       kax[2+(4*i)]=ax[i];
       kay[2+(4*i)]=ay[i];
@@ -221,7 +232,7 @@ void runge_kutta4(FLOAT *x, FLOAT *y, FLOAT *z, FLOAT *vx, FLOAT *vy, FLOAT *vz,
       kvy[3+(4*i)]=vy[i]+(delta_t)*kay[2+(4*i)];
       kvz[3+(4*i)]=vz[i]+(delta_t)*kaz[2+(4*i)];
     }
-    get_acceleration( ax, ay, az, xts, yts, zts, mass, n_points);
+    get_acceleration( ax, ay, az, xts, yts, zts, mass, n_points, id);
     for(i=0;i<n_points;i++){
       kax[3+(4*i)]=ax[i];
       kay[3+(4*i)]=ay[i];
