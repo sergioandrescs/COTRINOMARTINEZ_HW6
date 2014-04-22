@@ -1,0 +1,23 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+int main(){
+  /*void runge_kutta_4(float *x, float *y){*/
+
+  /*Definicion variables*/
+  float h;
+  float t_min;
+  float t_max;
+  float n_puntos;
+  /*Inicializacion variables*/
+  h=0.1;
+  t_min=0.0;
+  t_max=1.0;
+  n_puntos=(t_max-t_min)/h;
+  printf("h=%f t_min=%f t_max=%f \n", h , t_min, t_max);
+ 
+
+
+
+  return 0;
+}

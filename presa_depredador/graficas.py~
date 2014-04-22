@@ -1,0 +1,12 @@
+import numpy as np 
+import pylab as plt
+
+datos = np.loadtxt('datos.txt')
+x=datos[:,0]
+y=datos[:,1]
+plt.plot(x,y)
+plt.xlabel('x')
+plt.ylabel('y')
+#plt.title('X(0) = '+str(x[0])+'\ \ Y(0) = '+str(y[0])')
+plt.savefig('presa_depredador'+str(x[0])+'.png',dpi=200)
+plt.close()

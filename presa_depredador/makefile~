@@ -1,0 +1,11 @@
+all: graficas.py
+python graficas.py
+
+datos: volterra_lotka.x
+./volterra_lotka.x
+
+volterra_lotka: volterra_lotka.c
+cc volterra_lotka.c -lm -o volterra_lotka.x
+
+clean:
+rm *.x *.txt
